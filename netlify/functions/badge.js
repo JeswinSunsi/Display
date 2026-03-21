@@ -58,10 +58,13 @@ function svgBadge({ username, year, stats, theme = "dark" }) {
   const rows = lines
     .map((line, index) => {
       const y = 84 + index * 32;
+      const delay = index * 100 + 300;
       return `
-    <circle cx="30" cy="${y - 6}" r="6" fill="${colors.dot}" />
-    <text x="48" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="600">${escapeXml(line.label)}</text>
-    <text x="550" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end">${escapeXml(line.value)}</text>`;
+    <g class="stagger" style="animation-delay: ${delay}ms;">
+      <circle cx="30" cy="${y - 6}" r="6" fill="${colors.dot}" />
+      <text x="48" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="600">${escapeXml(line.label)}</text>
+      <text x="550" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end">${escapeXml(line.value)}</text>
+    </g>`;
     })
     .join("");
 
@@ -73,12 +76,27 @@ function svgBadge({ username, year, stats, theme = "dark" }) {
       <stop offset="100%" stop-color="${colors.bg2}" />
     </linearGradient>
     <style>
-      .title { font: 800 24px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif; fill: ${colors.title}; }
+      .title { font: 800 24px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif; fill: ${colors.title}; animation: fadeInDown 0.6s ease-out forwards; opacity: 0; }
+      .divider { animation: growWidth 0.6s ease-out 0.2s forwards; stroke-dasharray: 520; stroke-dashoffset: 520; }
+      .stagger { opacity: 0; animation: slideRight 0.5s ease-out forwards; }
+      
+      @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideRight {
+        from { opacity: 0; transform: translateX(-15px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes growWidth {
+        from { stroke-dashoffset: 520; }
+        to { stroke-dashoffset: 0; }
+      }
     </style>
   </defs>
   <rect width="580" height="290" rx="14" fill="url(#bg)" stroke="${colors.bg2}" stroke-width="2"/>
   <text x="30" y="45" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
-  <line x1="30" y1="58" x2="550" y2="58" stroke="${colors.text}" stroke-opacity="0.2" stroke-width="1" />
+  <line x1="30" y1="58" x2="550" y2="58" stroke="${colors.text}" stroke-opacity="0.2" stroke-width="1" class="divider" />
   ${rows}
 </svg>`;
 }
