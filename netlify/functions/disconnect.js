@@ -1,5 +1,5 @@
-const { getStore } = require("@netlify/blobs");
 const { assertEnv } = require("./lib/config");
+const { getTokenStore } = require("./lib/store");
 
 exports.handler = async (event) => {
   try {
@@ -16,7 +16,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const tokenStore = getStore("oauth-tokens");
+    const tokenStore = getTokenStore();
     await tokenStore.delete(username);
 
     return {

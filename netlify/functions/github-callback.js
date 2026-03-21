@@ -1,7 +1,7 @@
-const { getStore } = require("@netlify/blobs");
 const { assertEnv, appUrl } = require("./lib/config");
 const { verifyAndParseState, encryptToken } = require("./lib/crypto");
 const { exchangeCodeForToken, fetchAuthenticatedUser } = require("./lib/github");
+const { getTokenStore } = require("./lib/store");
 
 exports.handler = async (event) => {
   try {
@@ -24,7 +24,7 @@ exports.handler = async (event) => {
     const user = await fetchAuthenticatedUser(accessToken);
     const username = String(user.login).toLowerCase();
 
-    const tokenStore = getStore("oauth-tokens");
+    const tokenStore = getTokenStore();
     await tokenStore.set(username, encryptToken(accessToken));
 
     const next = new URL(`${appUrl()}/`);

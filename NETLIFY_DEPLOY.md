@@ -27,6 +27,26 @@ Site settings -> Environment variables:
 
 Then redeploy.
 
+## Blobs Error Fix (siteID/token)
+
+If you see:
+
+`The environment has not been configured to use Netlify Blobs ... supply ... siteID, token`
+
+add these env vars in Netlify too:
+
+- `NETLIFY_SITE_ID`
+- `NETLIFY_AUTH_TOKEN`
+
+Where to get them:
+
+1. `NETLIFY_SITE_ID`
+	- Netlify site -> Site configuration -> General -> Site details -> Site ID
+2. `NETLIFY_AUTH_TOKEN`
+	- Netlify user settings -> Applications -> Personal access tokens -> New access token
+
+After adding, trigger a new deploy.
+
 ## 4) Connect User Account
 
 Open your site and click Connect with GitHub.

@@ -1,7 +1,7 @@
-const { getStore } = require("@netlify/blobs");
 const { assertEnv } = require("./lib/config");
 const { decryptToken } = require("./lib/crypto");
 const { fetchYearlyStats } = require("./lib/github");
+const { getTokenStore } = require("./lib/store");
 
 const METRIC_MAP = {
   commits: { label: "commits", color: "2ea44f", key: "commits" },
@@ -48,7 +48,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const tokenStore = getStore("oauth-tokens");
+    const tokenStore = getTokenStore();
     const encryptedToken = await tokenStore.get(username, { consistency: "strong" });
     if (!encryptedToken) {
       return {
