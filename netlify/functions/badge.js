@@ -99,6 +99,129 @@ const THEMES = {
         </g>
       </g>
     `
+  },
+  cyberpunk: {
+    bg1: "#fcee0a",
+    bg2: "#ff003c",
+    title: "#00ffff",
+    text: "#000000",
+    dot: "#000000",
+    bgStyle: `
+      .glitch { animation: glitch-anim 2s linear infinite; }
+      @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-5px, 5px) } 40% { transform: translate(-5px, -5px) } 60% { transform: translate(5px, 5px) } 80% { transform: translate(5px, -5px) } 100% { transform: translate(0) } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)" opacity="0.1">
+        <rect x="50" y="50" width="100" height="15" fill="${c.title}" class="glitch" />
+        <rect x="400" y="200" width="150" height="20" fill="${c.text}" class="glitch" style="animation-delay: 0.5s" />
+        <rect x="150" y="250" width="80" height="10" fill="${c.title}" class="glitch" style="animation-delay: 1s" />
+      </g>
+    `
+  },
+  hacker: {
+    bg1: "#000000",
+    bg2: "#0f0f0f",
+    title: "#00ff00",
+    text: "#00aa00",
+    dot: "#00ff00",
+    bgStyle: `
+      .fall { animation: fall-anim 5s linear infinite; }
+      @keyframes fall-anim { 0% { transform: translateY(-50px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(350px); opacity: 0; } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)" opacity="0.15">
+        <text x="50" y="0" fill="${c.title}" font-size="20" font-family="monospace" class="fall">101010</text>
+        <text x="250" y="-30" fill="${c.dot}" font-size="24" font-family="monospace" class="fall" style="animation-duration: 4s; animation-delay: 1s">01011</text>
+        <text x="450" y="-10" fill="${c.title}" font-size="18" font-family="monospace" class="fall" style="animation-duration: 6s; animation-delay: 2s">110010</text>
+      </g>
+    `
+  },
+  ocean: {
+    bg1: "#001f3f",
+    bg2: "#0074d9",
+    title: "#7fdbff",
+    text: "#ffffff",
+    dot: "#39cccc",
+    bgStyle: `
+      .bubble { animation: bubble-rise 8s ease-in infinite; }
+      @keyframes bubble-rise { 0% { transform: translateY(300px) scale(0.5); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-50px) scale(1.5); opacity: 0; } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)" opacity="0.3">
+        <circle cx="100" cy="300" r="10" fill="${c.dot}" class="bubble" style="animation-duration: 7s" />
+        <circle cx="300" cy="300" r="15" fill="${c.title}" class="bubble" style="animation-duration: 10s; animation-delay: 2s" />
+        <circle cx="500" cy="300" r="8" fill="${c.dot}" class="bubble" style="animation-duration: 6s; animation-delay: 1s" />
+      </g>
+    `
+  },
+  sunset: {
+    bg1: "#ff512f",
+    bg2: "#dd2476",
+    title: "#ffeb3b",
+    text: "#ffffff",
+    dot: "#ffeb3b",
+    bgStyle: `
+      .sun-ray { animation: ray-spin 20s linear infinite; transform-origin: center; }
+      @keyframes ray-spin { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)" opacity="0.15">
+        <rect x="240" y="-100" width="100" height="500" fill="${c.title}" class="sun-ray" />
+        <rect x="-100" y="240" width="500" height="100" fill="${c.title}" class="sun-ray" style="animation-delay: -5s" />
+      </g>
+    `
+  },
+  minimalist: {
+    bg1: "#f0f0f0",
+    bg2: "#e0e0e0",
+    title: "#333333",
+    text: "#555555",
+    dot: "#111111",
+    bgStyle: `
+      .pulse-dot { animation: pulse-fade 4s ease-in-out infinite alternate; }
+      @keyframes pulse-fade { 0% { opacity: 0.1; transform: scale(0.8); } 100% { opacity: 0.4; transform: scale(1.2); } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)">
+        <circle cx="150" cy="150" r="40" fill="${c.title}" class="pulse-dot" />
+        <circle cx="450" cy="100" r="60" fill="${c.dot}" class="pulse-dot" style="animation-delay: 2s" />
+      </g>
+    `
+  },
+  retro: {
+    bg1: "#2b213a",
+    bg2: "#150e22",
+    title: "#ff007f",
+    text: "#f0f0f0",
+    dot: "#00e5ff",
+    bgStyle: `
+      .scanline { animation: scan 6s linear infinite; }
+      @keyframes scan { 0% { transform: translateY(-50px); } 100% { transform: translateY(350px); } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)" opacity="0.2">
+        <rect x="0" y="0" width="580" height="10" fill="${c.title}" class="scanline" />
+        <rect x="0" y="20" width="580" height="5" fill="${c.dot}" class="scanline" style="animation-delay: -3s" />
+      </g>
+    `
+  },
+  space: {
+    bg1: "#0b0c10",
+    bg2: "#1f2833",
+    title: "#66fcf1",
+    text: "#c5c6c7",
+    dot: "#45a29e",
+    bgStyle: `
+      .comet { animation: fly 8s linear infinite; }
+      @keyframes fly { 0% { transform: translate(-100px, -100px); opacity: 1; } 20% { opacity: 0; } 100% { transform: translate(600px, 600px); opacity: 0; } }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)">
+        <circle cx="0" cy="0" r="3" fill="${c.title}" class="comet" />
+        <path d="M0,0 L-30,-30" stroke="${c.title}" stroke-width="2" class="comet" />
+        <circle cx="0" cy="0" r="2" fill="${c.dot}" class="comet" style="animation-delay: 4s" />
+      </g>
+    `
   }
 };
 
