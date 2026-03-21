@@ -162,7 +162,6 @@
         height: 160%;
         background: linear-gradient(100deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.58) 50%, rgba(255, 255, 255, 0) 80%);
         transform: translateX(-65%);
-        animation: badgeShine 3.2s ease-in-out infinite;
         pointer-events: none;
       }
 
@@ -179,14 +178,6 @@
         height: auto;
         display: block;
         border-radius: 8px;
-      }
-
-      .badge-float {
-        animation: badgeFloat 3.6s ease-in-out infinite;
-      }
-
-      .badge-breath {
-        animation: badgeBreath 2.8s ease-in-out infinite;
       }
 
       @keyframes fadeUp {
@@ -219,23 +210,6 @@
       @keyframes driftTwo {
         from { transform: translate(0, 0) scale(1); }
         to { transform: translate(-28px, -20px) scale(1.1); }
-      }
-
-      @keyframes badgeShine {
-        0% { transform: translateX(-65%); opacity: 0; }
-        15% { opacity: 1; }
-        60% { opacity: 1; }
-        100% { transform: translateX(95%); opacity: 0; }
-      }
-
-      @keyframes badgeFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
-      }
-
-      @keyframes badgeBreath {
-        0%, 100% { transform: scale(1); filter: saturate(1); }
-        50% { transform: scale(1.012); filter: saturate(1.05); }
       }
 
       @media (max-width: 720px) {
@@ -291,11 +265,11 @@
         <div class="badge-grid" id="badgePreview" style="display: none;">
           <div class="badge-frame">
             <strong>Current Year (live)</strong>
-            <img id="badgeLive" class="badge-float" alt="Live GitHub badge preview" />
+            <img id="badgeLive" alt="Live GitHub badge preview" />
           </div>
           <div class="badge-frame">
             <strong>Locked Year</strong>
-            <img id="badgeYear" class="badge-breath" alt="Year-locked GitHub badge preview" />
+            <img id="badgeYear" alt="Year-locked GitHub badge preview" />
           </div>
         </div>
 
