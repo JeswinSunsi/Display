@@ -71,6 +71,9 @@ function svgBadge({ username, year, stats, theme = "dark" }) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="580" height="290" role="img" aria-label="${escapeXml(username)} GitHub stats ${escapeXml(year)}">
   <defs>
+    <clipPath id="cardClip">
+      <rect width="580" height="290" rx="14"/>
+    </clipPath>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="${colors.bg1}" />
       <stop offset="100%" stop-color="${colors.bg2}" />
@@ -80,6 +83,23 @@ function svgBadge({ username, year, stats, theme = "dark" }) {
       .divider { animation: growWidth 0.6s ease-out 0.2s forwards; stroke-dasharray: 520; stroke-dashoffset: 520; }
       .stagger { opacity: 0; animation: slideRight 0.5s ease-out forwards; }
       
+      .orb1 { animation: float1 12s ease-in-out infinite alternate; }
+      .orb2 { animation: float2 14s ease-in-out infinite alternate; transform-origin: center; }
+      .orb3 { animation: float3 16s ease-in-out infinite alternate; }
+
+      @keyframes float1 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(-40px, 30px) scale(1.2); }
+      }
+      @keyframes float2 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(30px, -40px) scale(0.8); }
+      }
+      @keyframes float3 {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(40px, 10px) scale(1.1); }
+      }
+
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
@@ -95,6 +115,13 @@ function svgBadge({ username, year, stats, theme = "dark" }) {
     </style>
   </defs>
   <rect width="580" height="290" rx="14" fill="url(#bg)" stroke="${colors.bg2}" stroke-width="2"/>
+  
+  <g clip-path="url(#cardClip)" opacity="0.12" style="isolation: isolate;">
+    <circle cx="500" cy="50" r="100" fill="${colors.title}" class="orb1" />
+    <circle cx="550" cy="260" r="80" fill="${colors.dot}" class="orb2" />
+    <circle cx="100" cy="250" r="120" fill="${colors.text}" class="orb3" />
+  </g>
+
   <text x="30" y="45" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
   <line x1="30" y1="58" x2="550" y2="58" stroke="${colors.text}" stroke-opacity="0.2" stroke-width="1" class="divider" />
   ${rows}
