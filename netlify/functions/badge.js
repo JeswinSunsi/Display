@@ -12,7 +12,40 @@ function escapeXml(value) {
     .replace(/'/g, "&apos;");
 }
 
-function svgBadge({ username, year, stats }) {
+const THEMES = {
+  dark: {
+    bg1: "#0d1117",
+    bg2: "#161b22",
+    title: "#58a6ff",
+    text: "#c9d1d9",
+    dot: "#3fb950"
+  },
+  light: {
+    bg1: "#ffffff",
+    bg2: "#f6f8fa",
+    title: "#0969da",
+    text: "#24292f",
+    dot: "#2da44e"
+  },
+  dracula: {
+    bg1: "#282a36",
+    bg2: "#44475a",
+    title: "#ff79c6",
+    text: "#f8f8f2",
+    dot: "#50fa7b"
+  },
+  synthwave: {
+    bg1: "#262335",
+    bg2: "#262335",
+    title: "#ff7edb",
+    text: "#f9f9f9",
+    dot: "#36f9f6"
+  }
+};
+
+function svgBadge({ username, year, stats, theme = "dark" }) {
+  const colors = THEMES[theme] || THEMES.dark;
+
   const lines = [
     { label: "Total Commits:", value: stats.commits },
     { label: "Total PRs:", value: stats.prs },
@@ -24,24 +57,29 @@ function svgBadge({ username, year, stats }) {
 
   const rows = lines
     .map((line, index) => {
-      const y = 74 + index * 30;
+      const y = 84 + index * 32;
       return `
-    <circle cx="26" cy="${y - 7}" r="6" fill="#2ec27e" opacity="0.9" />
-    <text x="40" y="${y}" fill="#ffffff" font-size="18" font-weight="700">${escapeXml(line.label)}</text>
-    <text x="560" y="${y}" fill="#ffffff" font-size="18" font-weight="800" text-anchor="end">${escapeXml(line.value)}</text>`;
+    <circle cx="30" cy="${y - 6}" r="6" fill="${colors.dot}" />
+    <text x="48" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="600">${escapeXml(line.label)}</text>
+    <text x="550" y="${y}" fill="${colors.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end">${escapeXml(line.value)}</text>`;
     })
     .join("");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="580" height="260" role="img" aria-label="${escapeXml(username)} GitHub stats ${escapeXml(year)}">
+<svg xmlns="http://www.w3.org/2000/svg" width="580" height="290" role="img" aria-label="${escapeXml(username)} GitHub stats ${escapeXml(year)}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f2538" />
-      <stop offset="100%" stop-color="#1b3247" />
+      <stop offset="0%" stop-color="${colors.bg1}" />
+      <stop offset="100%" stop-color="${colors.bg2}" />
     </linearGradient>
+    <style>
+      .title { font: 800 24px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif; fill: ${colors.title}; }
+    </style>
   </defs>
-  <rect width="580" height="260" rx="14" fill="url(#bg)" />
-  <text x="24" y="40" fill="#2ec27e" font-size="34" font-weight="800">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>${rows}
+  <rect width="580" height="290" rx="14" fill="url(#bg)" stroke="${colors.bg2}" stroke-width="2"/>
+  <text x="30" y="45" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
+  <line x1="30" y1="58" x2="550" y2="58" stroke="${colors.text}" stroke-opacity="0.2" stroke-width="1" />
+  ${rows}
 </svg>`;
 }
 
@@ -52,6 +90,7 @@ exports.handler = async (event) => {
     const params = new URLSearchParams(event.queryStringParameters || {});
     const username = (params.get("username") || "").trim().toLowerCase();
     const year = Number(params.get("year") || new Date().getUTCFullYear());
+    const theme = (params.get("theme") || "dark").toLowerCase();
 
     if (!username) {
       return {
@@ -67,6 +106,7 @@ exports.handler = async (event) => {
       const svg = svgBadge({
         username,
         year,
+        theme,
         stats: {
           commits: "-",
           prs: "-",
@@ -89,7 +129,7 @@ exports.handler = async (event) => {
 
     const token = decryptToken(encryptedToken);
     const stats = await fetchYearlyStats({ accessToken: token, username, year });
-    const svg = svgBadge({ username, year, stats });
+    const svg = svgBadge({ username, year, stats, theme });
 
     return {
       statusCode: 200,

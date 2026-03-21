@@ -84,12 +84,18 @@
 
         <div class="row">
           <input id="username" placeholder="github username" />
+          <select id="theme" style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px;">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="dracula">Dracula</option>
+            <option value="synthwave">Synthwave</option>
+          </select>
           <button id="connect">Connect with GitHub</button>
         </div>
 
         <p class="muted">
           Custom SVG badge URL after connect:
-          <code>https://YOUR_NETLIFY_DOMAIN/badge?username=YOUR_USER</code>
+          <code>https://YOUR_NETLIFY_DOMAIN/badge?username=YOUR_USER&amp;theme=dark</code>
         </p>
 
         <h3>Generated README Snippet</h3>
@@ -99,48 +105,57 @@
 
     <script>
       const usernameInput = document.getElementById("username");
+      const themeSelect = document.getElementById("theme");
       const connectBtn = document.getElementById("connect");
       const snippet = document.getElementById("snippet");
 
-      function buildSnippet(username) {
+      function buildSnippet(username, theme) {
         const base = window.location.origin;
-        const badge = `${base}/badge?username=${encodeURIComponent(username)}`;
+        let badge = `${base}/badge?username=${encodeURIComponent(username)}`;
+        if (theme && theme !== "dark") badge += `&theme=${theme}`;
 
         return [
           `![${username} GitHub Stats](${badge})`,
           "",
           `<!-- Optional: lock to a year -->`,
           `![${username} GitHub Stats ${new Date().getUTCFullYear()}](${badge}&year=${new Date().getUTCFullYear()})`,
-        ].join("\n");
+        ].join("\\n");
       }
 
       function refreshFromQuery() {
         const q = new URLSearchParams(window.location.search);
         const user = (q.get("username") || "").trim().toLowerCase();
+        const theme = (q.get("theme") || "dark").toLowerCase();
+        if (themeSelect) themeSelect.value = theme;
         if (user) {
           usernameInput.value = user;
-          snippet.textContent = buildSnippet(user);
+          snippet.textContent = buildSnippet(user, theme);
         }
       }
 
       connectBtn.addEventListener("click", () => {
         const username = usernameInput.value.trim().toLowerCase();
+        const theme = themeSelect.value;
         if (!username) {
           alert("Enter a GitHub username first.");
           return;
         }
-        snippet.textContent = buildSnippet(username);
+        snippet.textContent = buildSnippet(username, theme);
         window.location.href = `/auth/github?username=${encodeURIComponent(username)}`;
       });
 
-      usernameInput.addEventListener("input", () => {
+      function handleInput() {
         const username = usernameInput.value.trim().toLowerCase();
+        const theme = themeSelect.value;
         if (!username) {
           snippet.textContent = "Enter username above to generate badge snippet.";
           return;
         }
-        snippet.textContent = buildSnippet(username);
-      });
+        snippet.textContent = buildSnippet(username, theme);
+      }
+
+      usernameInput.addEventListener("input", handleInput);
+      themeSelect.addEventListener("change", handleInput);
 
       refreshFromQuery();
     </script>
