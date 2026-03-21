@@ -1,0 +1,122 @@
+name: Update GitHub Stats Badges
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute yearly contribution stats
+        id: stats
+        uses: actions/github-script@v7
+        env:
+          TARGET_USERNAME: ${{ secrets.GITHUB_USERNAME || github.repository_owner }}
+        with:
+          github-token: ${{ secrets.GH_STATS_TOKEN }}
+          result-encoding: string
+          script: |
+            const username = process.env.TARGET_USERNAME;
+            const now = new Date();
+            const year = now.getUTCFullYear();
+            const from = `${year}-01-01T00:00:00Z`;
+            const to = `${year}-12-31T23:59:59Z`;
+
+            const query = `
+              query($username: String!, $from: DateTime!, $to: DateTime!) {
+                user(login: $username) {
+                  contributionsCollection(from: $from, to: $to) {
+                    totalCommitContributions
+                    totalPullRequestContributions
+                    totalIssueContributions
+                    totalPullRequestReviewContributions
+                    restrictedContributionsCount
+                  }
+                }
+              }
+            `;
+
+            const res = await github.graphql(query, {
+              username,
+              from,
+              to,
+            });
+
+            if (!res?.user?.contributionsCollection) {
+              throw new Error(`Unable to fetch contributions for ${username}`);
+            }
+
+            const c = res.user.contributionsCollection;
+            const stats = {
+              username,
+              year,
+              commits: c.totalCommitContributions,
+              prs: c.totalPullRequestContributions,
+              issues: c.totalIssueContributions,
+              reviews: c.totalPullRequestReviewContributions,
+              privateContributions: c.restrictedContributionsCount,
+            };
+
+            stats.total = stats.commits + stats.prs + stats.issues + stats.reviews + stats.privateContributions;
+
+            core.setOutput("stats", JSON.stringify(stats));
+            return JSON.stringify(stats);
+
+      - name: Push badge JSON files to gist
+        uses: actions/github-script@v7
+        env:
+          STATS_JSON: ${{ steps.stats.outputs.stats }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+        with:
+          github-token: ${{ secrets.GH_STATS_TOKEN }}
+          script: |
+            const stats = JSON.parse(process.env.STATS_JSON);
+            const gistId = process.env.GIST_ID;
+
+            if (!gistId) {
+              throw new Error("Missing GIST_ID secret");
+            }
+
+            const y = String(stats.year);
+            const mk = (label, message, color = "blue") => ({
+              schemaVersion: 1,
+              label,
+              message: String(message),
+              color,
+            });
+
+            const files = {
+              "github-yearly-commits.json": {
+                content: JSON.stringify(mk(`commits ${y}`, stats.commits, "2ea44f"), null, 2),
+              },
+              "github-yearly-prs.json": {
+                content: JSON.stringify(mk(`PRs ${y}`, stats.prs, "1f6feb"), null, 2),
+              },
+              "github-yearly-issues.json": {
+                content: JSON.stringify(mk(`issues ${y}`, stats.issues, "8250df"), null, 2),
+              },
+              "github-yearly-reviews.json": {
+                content: JSON.stringify(mk(`reviews ${y}`, stats.reviews, "0969da"), null, 2),
+              },
+              "github-yearly-private.json": {
+                content: JSON.stringify(mk(`private ${y}`, stats.privateContributions, "bf8700"), null, 2),
+              },
+              "github-yearly-total.json": {
+                content: JSON.stringify(mk(`activity ${y}`, stats.total, "0e8a16"), null, 2),
+              },
+              "github-yearly-raw-stats.json": {
+                content: JSON.stringify(stats, null, 2),
+              },
+            };
+
+            await github.request("PATCH /gists/{gist_id}", {
+              gist_id: gistId,
+              files,
+            });
+
+            core.info(`Updated gist ${gistId} for ${stats.username} (${stats.year})`);

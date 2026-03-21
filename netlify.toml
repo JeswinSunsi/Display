@@ -1,0 +1,32 @@
+[build]
+  command = "echo 'No build step required'"
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/auth/github"
+  to = "/.netlify/functions/github-login"
+  status = 200
+
+[[redirects]]
+  from = "/auth/github/callback"
+  to = "/.netlify/functions/github-callback"
+  status = 200
+
+[[redirects]]
+  from = "/badge"
+  to = "/.netlify/functions/badge"
+  status = 200
+
+[[redirects]]
+  from = "/stats"
+  to = "/.netlify/functions/stats"
+  status = 200
+
+[[redirects]]
+  from = "/disconnect"
+  to = "/.netlify/functions/disconnect"
+  status = 200

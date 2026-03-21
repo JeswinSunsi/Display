@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Yearly Badge OAuth</title>
+    <style>
+      :root {
+        --bg: #f6f8fa;
+        --panel: #ffffff;
+        --text: #1f2328;
+        --muted: #59636e;
+        --primary: #0969da;
+        --border: #d0d7de;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+        background: radial-gradient(circle at top, #e7f1ff 0%, var(--bg) 45%);
+        color: var(--text);
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px 20px 60px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 8px 30px rgba(9, 105, 218, 0.08);
+      }
+      h1 { margin-top: 0; }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      input {
+        flex: 1;
+        min-width: 220px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 15px;
+      }
+      button {
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 14px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      code {
+        background: #f0f6ff;
+        border: 1px solid #c6e0ff;
+        border-radius: 8px;
+        padding: 2px 6px;
+      }
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #f6f8fa;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .muted { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="card">
+        <h1>GitHub Yearly Badge OAuth</h1>
+        <p class="muted">
+          Connect your GitHub account, then copy your badge endpoint URLs into your README.
+        </p>
+
+        <div class="row">
+          <input id="username" placeholder="github username" />
+          <button id="connect">Connect with GitHub</button>
+        </div>
+
+        <p class="muted">
+          Example Shields URL after connect:
+          <code>https://img.shields.io/endpoint?url=https://YOUR_NETLIFY_DOMAIN/badge?username=YOUR_USER&metric=total</code>
+        </p>
+
+        <h3>Generated README Snippet</h3>
+        <pre id="snippet">Enter username above to generate badge snippet.</pre>
+      </div>
+    </main>
+
+    <script>
+      const usernameInput = document.getElementById("username");
+      const connectBtn = document.getElementById("connect");
+      const snippet = document.getElementById("snippet");
+
+      function buildSnippet(username) {
+        const base = window.location.origin;
+        const endpoint = (metric) =>
+          `https://img.shields.io/endpoint?url=${encodeURIComponent(`${base}/badge?username=${username}&metric=${metric}`)}`;
+
+        return [
+          `![Yearly Commits](${endpoint("commits")})`,
+          `![Yearly PRs](${endpoint("prs")})`,
+          `![Yearly Issues](${endpoint("issues")})`,
+          `![Yearly Reviews](${endpoint("reviews")})`,
+          `![Yearly Private](${endpoint("private")})`,
+          `![Yearly Total](${endpoint("total")})`,
+        ].join("\n");
+      }
+
+      function refreshFromQuery() {
+        const q = new URLSearchParams(window.location.search);
+        const user = (q.get("username") || "").trim().toLowerCase();
+        if (user) {
+          usernameInput.value = user;
+          snippet.textContent = buildSnippet(user);
+        }
+      }
+
+      connectBtn.addEventListener("click", () => {
+        const username = usernameInput.value.trim().toLowerCase();
+        if (!username) {
+          alert("Enter a GitHub username first.");
+          return;
+        }
+        snippet.textContent = buildSnippet(username);
+        window.location.href = `/auth/github?username=${encodeURIComponent(username)}`;
+      });
+
+      usernameInput.addEventListener("input", () => {
+        const username = usernameInput.value.trim().toLowerCase();
+        if (!username) {
+          snippet.textContent = "Enter username above to generate badge snippet.";
+          return;
+        }
+        snippet.textContent = buildSnippet(username);
+      });
+
+      refreshFromQuery();
+    </script>
+  </body>
+</html>

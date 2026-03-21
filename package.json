@@ -1,0 +1,16 @@
+{
+  "name": "github-yearly-badges-netlify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub OAuth + yearly contribution badge endpoints for Netlify",
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^20.1.0"
+  }
+}
