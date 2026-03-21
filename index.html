@@ -6,55 +6,115 @@
     <title>GitHub Yearly Badge OAuth</title>
     <style>
       :root {
-        --bg: #f6f8fa;
+        --bg: #f2f6fb;
         --panel: #ffffff;
         --text: #1f2328;
         --muted: #59636e;
-        --primary: #0969da;
+        --primary: #1166c6;
+        --primary-strong: #0b4ea3;
+        --primary-soft: #d9e9ff;
         --border: #d0d7de;
+        --shadow: 0 20px 50px rgba(17, 102, 198, 0.16);
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-        background: radial-gradient(circle at top, #e7f1ff 0%, var(--bg) 45%);
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 10% 10%, #eaf3ff 0%, rgba(234, 243, 255, 0) 40%),
+          radial-gradient(circle at 90% 25%, #dff0ff 0%, rgba(223, 240, 255, 0) 30%),
+          linear-gradient(160deg, #f6f9ff 0%, var(--bg) 58%, #edf4ff 100%);
         color: var(--text);
+        overflow-x: hidden;
+      }
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        width: 360px;
+        height: 360px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+        filter: blur(30px);
+        opacity: 0.45;
+      }
+      body::before {
+        background: #bfe4ff;
+        top: -130px;
+        left: -80px;
+        animation: driftOne 18s ease-in-out infinite alternate;
+      }
+      body::after {
+        background: #c8ddff;
+        bottom: -160px;
+        right: -90px;
+        animation: driftTwo 22s ease-in-out infinite alternate;
       }
       main {
         max-width: 860px;
         margin: 0 auto;
         padding: 40px 20px 60px;
+        animation: fadeUp 700ms ease-out;
       }
       .card {
-        background: var(--panel);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.88));
         border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 22px;
-        box-shadow: 0 8px 30px rgba(9, 105, 218, 0.08);
+        border-radius: 18px;
+        padding: 26px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(6px);
+        position: relative;
       }
-      h1 { margin-top: 0; }
+      h1 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.2rem);
+        line-height: 1.15;
+      }
       .row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         margin-bottom: 14px;
       }
-      input {
+      input,
+      select {
         flex: 1;
         min-width: 220px;
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 10px 12px;
         font-size: 15px;
+        background: #fff;
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
       }
       button {
         border: 0;
         border-radius: 10px;
-        background: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--primary-strong));
         color: #fff;
         padding: 10px 14px;
         font-size: 15px;
+        font-weight: 600;
         cursor: pointer;
+        transition: transform 160ms ease, box-shadow 200ms ease, filter 180ms ease;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(17, 102, 198, 0.35);
+        filter: saturate(1.06);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      input:focus-visible,
+      select:focus-visible,
+      button:focus-visible {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-soft);
       }
       code {
         background: #f0f6ff;
@@ -66,12 +126,67 @@
         margin: 0;
         white-space: pre-wrap;
         word-break: break-word;
-        background: #f6f8fa;
+        background:
+          linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 12px;
+        transition: border-color 180ms ease, box-shadow 180ms ease;
+      }
+      pre.flash {
+        animation: snippetGlow 450ms ease;
       }
       .muted { color: var(--muted); }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes snippetGlow {
+        0% {
+          border-color: #9bc4ff;
+          box-shadow: 0 0 0 0 rgba(17, 102, 198, 0.25);
+        }
+        100% {
+          border-color: var(--border);
+          box-shadow: 0 0 0 10px rgba(17, 102, 198, 0);
+        }
+      }
+
+      @keyframes driftOne {
+        from { transform: translate(0, 0) scale(1); }
+        to { transform: translate(35px, 25px) scale(1.08); }
+      }
+
+      @keyframes driftTwo {
+        from { transform: translate(0, 0) scale(1); }
+        to { transform: translate(-28px, -20px) scale(1.1); }
+      }
+
+      @media (max-width: 720px) {
+        .card {
+          padding: 20px;
+          border-radius: 14px;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -84,7 +199,7 @@
 
         <div class="row">
           <input id="username" placeholder="github username" />
-          <select id="theme" style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px;">
+          <select id="theme">
             <option value="dark">Dark</option>
             <option value="light">Light</option>
             <option value="dracula">Dracula</option>
@@ -103,6 +218,12 @@
       const themeSelect = document.getElementById("theme");
       const connectBtn = document.getElementById("connect");
       const snippet = document.getElementById("snippet");
+
+      function animateSnippet() {
+        snippet.classList.remove("flash");
+        void snippet.offsetWidth;
+        snippet.classList.add("flash");
+      }
 
       function buildSnippet(username, theme) {
         const base = window.location.origin;
@@ -125,6 +246,7 @@
         if (user) {
           usernameInput.value = user;
           snippet.textContent = buildSnippet(user, theme);
+          animateSnippet();
         }
       }
 
@@ -136,6 +258,7 @@
           return;
         }
         snippet.textContent = buildSnippet(username, theme);
+        animateSnippet();
         window.location.href = `/auth/github?username=${encodeURIComponent(username)}`;
       });
 
@@ -147,6 +270,7 @@
           return;
         }
         snippet.textContent = buildSnippet(username, theme);
+        animateSnippet();
       }
 
       usernameInput.addEventListener("input", handleInput);
