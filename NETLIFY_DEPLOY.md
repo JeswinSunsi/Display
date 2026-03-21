@@ -38,6 +38,11 @@ add these env vars in Netlify too:
 - `NETLIFY_SITE_ID`
 - `NETLIFY_AUTH_TOKEN`
 
+Supported aliases in this codebase:
+
+- site id: `NETLIFY_SITE_ID`, `SITE_ID`, `BLOBS_SITE_ID`
+- token: `NETLIFY_AUTH_TOKEN`, `NETLIFY_ACCESS_TOKEN`, `NETLIFY_TOKEN`, `NETLIFY_API_TOKEN`, `BLOBS_TOKEN`
+
 Where to get them:
 
 1. `NETLIFY_SITE_ID`
@@ -46,6 +51,23 @@ Where to get them:
 	- Netlify user settings -> Applications -> Personal access tokens -> New access token
 
 After adding, trigger a new deploy.
+
+## Blobs Diagnostic Endpoint
+
+You can verify Blobs configuration without exposing secret values:
+
+- URL: `/diagnostics/blobs`
+- Response fields include:
+	- `blobsConfigMode`: `manual`, `auto`, or `incomplete`
+	- `hasSiteID`: whether any supported site id env var is present
+	- `hasToken`: whether any supported token env var is present
+
+Optional protection:
+
+- Set `DIAGNOSTIC_KEY` in Netlify env vars to require access.
+- Then call either:
+	- `/diagnostics/blobs?key=YOUR_KEY`
+	- or header `x-diagnostic-key: YOUR_KEY`
 
 ## 4) Connect User Account
 

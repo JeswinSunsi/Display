@@ -30,3 +30,8 @@
   from = "/disconnect"
   to = "/.netlify/functions/disconnect"
   status = 200
+
+[[redirects]]
+  from = "/diagnostics/blobs"
+  to = "/.netlify/functions/blobs-diagnostic"
+  status = 200
