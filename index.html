@@ -138,6 +138,57 @@
       }
       .muted { color: var(--muted); }
 
+      .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin: 12px 0 18px;
+      }
+
+      .badge-frame {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f9fcff 0%, #f1f7ff 100%);
+        padding: 10px;
+        min-height: 88px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .badge-frame::before {
+        content: "";
+        position: absolute;
+        inset: -70% -20% auto;
+        height: 160%;
+        background: linear-gradient(100deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.58) 50%, rgba(255, 255, 255, 0) 80%);
+        transform: translateX(-65%);
+        animation: badgeShine 3.2s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .badge-frame strong {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .badge-frame img {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+      }
+
+      .badge-float {
+        animation: badgeFloat 3.6s ease-in-out infinite;
+      }
+
+      .badge-breath {
+        animation: badgeBreath 2.8s ease-in-out infinite;
+      }
+
       @keyframes fadeUp {
         from {
           opacity: 0;
@@ -170,10 +221,31 @@
         to { transform: translate(-28px, -20px) scale(1.1); }
       }
 
+      @keyframes badgeShine {
+        0% { transform: translateX(-65%); opacity: 0; }
+        15% { opacity: 1; }
+        60% { opacity: 1; }
+        100% { transform: translateX(95%); opacity: 0; }
+      }
+
+      @keyframes badgeFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+      }
+
+      @keyframes badgeBreath {
+        0%, 100% { transform: scale(1); filter: saturate(1); }
+        50% { transform: scale(1.012); filter: saturate(1.05); }
+      }
+
       @media (max-width: 720px) {
         .card {
           padding: 20px;
           border-radius: 14px;
+        }
+
+        .badge-grid {
+          grid-template-columns: 1fr;
         }
 
         button {
@@ -208,6 +280,18 @@
           <button id="connect">Connect with GitHub</button>
         </div>
 
+        <h3>Badge Preview</h3>
+        <div class="badge-grid" id="badgePreview" style="display: none;">
+          <div class="badge-frame">
+            <strong>Current Year (live)</strong>
+            <img id="badgeLive" class="badge-float" alt="Live GitHub badge preview" />
+          </div>
+          <div class="badge-frame">
+            <strong>Locked Year</strong>
+            <img id="badgeYear" class="badge-breath" alt="Year-locked GitHub badge preview" />
+          </div>
+        </div>
+
         <h3>Generated README Snippet</h3>
         <pre id="snippet">Enter username above to generate badge snippet.</pre>
       </div>
@@ -218,6 +302,9 @@
       const themeSelect = document.getElementById("theme");
       const connectBtn = document.getElementById("connect");
       const snippet = document.getElementById("snippet");
+      const badgePreview = document.getElementById("badgePreview");
+      const badgeLive = document.getElementById("badgeLive");
+      const badgeYear = document.getElementById("badgeYear");
 
       function animateSnippet() {
         snippet.classList.remove("flash");
@@ -225,16 +312,38 @@
         snippet.classList.add("flash");
       }
 
-      function buildSnippet(username, theme) {
+      function buildBadgeUrls(username, theme) {
         const base = window.location.origin;
         let badge = `${base}/badge?username=${encodeURIComponent(username)}`;
         if (theme && theme !== "dark") badge += `&theme=${theme}`;
+        const year = new Date().getUTCFullYear();
+        return {
+          live: badge,
+          locked: `${badge}&year=${year}`,
+        };
+      }
+
+      function refreshBadgePreview(username, theme) {
+        if (!username) {
+          badgePreview.style.display = "none";
+          badgeLive.removeAttribute("src");
+          badgeYear.removeAttribute("src");
+          return;
+        }
+        const urls = buildBadgeUrls(username, theme);
+        badgeLive.src = urls.live;
+        badgeYear.src = urls.locked;
+        badgePreview.style.display = "grid";
+      }
+
+      function buildSnippet(username, theme) {
+        const urls = buildBadgeUrls(username, theme);
 
         return [
-          `![${username} GitHub Stats](${badge})`,
+          `![${username} GitHub Stats](${urls.live})`,
           "",
           `<!-- Optional: lock to a year -->`,
-          `![${username} GitHub Stats ${new Date().getUTCFullYear()}](${badge}&year=${new Date().getUTCFullYear()})`,
+          `![${username} GitHub Stats ${new Date().getUTCFullYear()}](${urls.locked})`,
         ].join("\\n");
       }
 
@@ -246,6 +355,7 @@
         if (user) {
           usernameInput.value = user;
           snippet.textContent = buildSnippet(user, theme);
+          refreshBadgePreview(user, theme);
           animateSnippet();
         }
       }
@@ -258,6 +368,7 @@
           return;
         }
         snippet.textContent = buildSnippet(username, theme);
+        refreshBadgePreview(username, theme);
         animateSnippet();
         window.location.href = `/auth/github?username=${encodeURIComponent(username)}`;
       });
@@ -267,9 +378,11 @@
         const theme = themeSelect.value;
         if (!username) {
           snippet.textContent = "Enter username above to generate badge snippet.";
+          refreshBadgePreview("", theme);
           return;
         }
         snippet.textContent = buildSnippet(username, theme);
+        refreshBadgePreview(username, theme);
         animateSnippet();
       }
 
