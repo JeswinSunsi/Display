@@ -1,4 +1,5 @@
 const { getStore } = require("@netlify/blobs");
+const STORE_NAME = "oauth-tokens";
 
 const SITE_ID_ENV_VARS = ["NETLIFY_SITE_ID", "SITE_ID", "BLOBS_SITE_ID"];
 const TOKEN_ENV_VARS = [
@@ -55,7 +56,12 @@ function getTokenStore() {
   const { siteID, token } = config;
 
   if (siteID && token) {
-    return getStore("oauth-tokens", { siteID, token });
+    // Keep compatibility with different @netlify/blobs versions.
+    try {
+      return getStore({ name: STORE_NAME, siteID, token });
+    } catch (error) {
+      return getStore(STORE_NAME, { siteID, token });
+    }
   }
 
   if ((siteID && !token) || (!siteID && token)) {
@@ -66,10 +72,28 @@ function getTokenStore() {
     );
   }
 
-  return getStore("oauth-tokens");
+  try {
+    return getStore({ name: STORE_NAME });
+  } catch (error) {
+    return getStore(STORE_NAME);
+  }
+}
+
+async function probeTokenStore() {
+  try {
+    const store = getTokenStore();
+    await store.get("__blobs_probe__", { consistency: "strong" });
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 module.exports = {
   getTokenStore,
+  probeTokenStore,
   resolveTokenStoreConfig,
 };

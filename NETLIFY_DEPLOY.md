@@ -61,6 +61,8 @@ You can verify Blobs configuration without exposing secret values:
 	- `blobsConfigMode`: `manual`, `auto`, or `incomplete`
 	- `hasSiteID`: whether any supported site id env var is present
 	- `hasToken`: whether any supported token env var is present
+	- `storeProbeOk`: whether a live read against the token store succeeds
+	- `storeProbeError`: runtime error message from the probe (if any)
 
 Optional protection:
 

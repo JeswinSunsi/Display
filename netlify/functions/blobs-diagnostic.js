@@ -1,4 +1,4 @@
-const { resolveTokenStoreConfig } = require("./lib/store");
+const { probeTokenStore, resolveTokenStoreConfig } = require("./lib/store");
 
 function hasDiagnosticAccess(event) {
   const requiredKey = process.env.DIAGNOSTIC_KEY;
@@ -37,6 +37,7 @@ exports.handler = async (event) => {
   }
 
   const config = resolveTokenStoreConfig();
+  const probe = await probeTokenStore();
 
   return {
     statusCode: 200,
@@ -49,6 +50,8 @@ exports.handler = async (event) => {
       blobsConfigMode: config.mode,
       hasSiteID: config.hasSiteID,
       hasToken: config.hasToken,
+      storeProbeOk: probe.ok,
+      storeProbeError: probe.ok ? null : probe.error,
       siteIdEnvVarsChecked: config.siteIdEnvVars,
       tokenEnvVarsChecked: config.tokenEnvVars,
       timestamp: new Date().toISOString(),
