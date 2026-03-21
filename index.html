@@ -88,8 +88,8 @@
         </div>
 
         <p class="muted">
-          Example Shields URL after connect:
-          <code>https://img.shields.io/endpoint?url=https://YOUR_NETLIFY_DOMAIN/badge?username=YOUR_USER&metric=total</code>
+          Custom SVG badge URL after connect:
+          <code>https://YOUR_NETLIFY_DOMAIN/badge?username=YOUR_USER</code>
         </p>
 
         <h3>Generated README Snippet</h3>
@@ -104,16 +104,13 @@
 
       function buildSnippet(username) {
         const base = window.location.origin;
-        const endpoint = (metric) =>
-          `https://img.shields.io/endpoint?url=${encodeURIComponent(`${base}/badge?username=${username}&metric=${metric}`)}`;
+        const badge = `${base}/badge?username=${encodeURIComponent(username)}`;
 
         return [
-          `![Yearly Commits](${endpoint("commits")})`,
-          `![Yearly PRs](${endpoint("prs")})`,
-          `![Yearly Issues](${endpoint("issues")})`,
-          `![Yearly Reviews](${endpoint("reviews")})`,
-          `![Yearly Private](${endpoint("private")})`,
-          `![Yearly Total](${endpoint("total")})`,
+          `![${username} GitHub Stats](${badge})`,
+          "",
+          `<!-- Optional: lock to a year -->`,
+          `![${username} GitHub Stats ${new Date().getUTCFullYear()}](${badge}&year=${new Date().getUTCFullYear()})`,
         ].join("\n");
       }
 

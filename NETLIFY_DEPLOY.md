@@ -83,26 +83,17 @@ Direct login URL format:
 
 Endpoint format:
 
-`https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=total`
+`https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME`
 
-Valid metrics:
+Optional query parameters:
 
-- `commits`
-- `prs`
-- `issues`
-- `reviews`
-- `private`
-- `total`
+- `year` (defaults to current UTC year)
 
 Example markdown:
 
 ```md
-![Yearly Commits](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=commits)
-![Yearly PRs](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=prs)
-![Yearly Issues](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=issues)
-![Yearly Reviews](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=reviews)
-![Yearly Private](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=private)
-![Yearly Total](https://img.shields.io/endpoint?url=https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&metric=total)
+![GitHub Stats](https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME)
+![GitHub Stats 2026](https://YOUR_SITE.netlify.app/badge?username=YOUR_GITHUB_USERNAME&year=2026)
 ```
 
 ## Notes
