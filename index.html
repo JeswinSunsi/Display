@@ -5,68 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GitHub Yearly Badge</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
       :root {
-        --bg: #f8fafc;
-        --panel: #ffffff;
-        --text: #0f172a;
-        --muted: #64748b;
-        --primary: #2563eb;
-        --primary-strong: #1d4ed8;
-        --primary-soft: #dbeafe;
-        --border: #e2e8f0;
-        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        --bg-1: #0a0f1d;
+        --bg-2: #121929;
+        --surface: #10192b;
+        --surface-soft: #18233a;
+        --text: #ebf2ff;
+        --muted: #9db0d0;
+        --primary: #2dd4bf;
+        --primary-strong: #14b8a6;
+        --warning: #f59e0b;
+        --danger: #fb7185;
+        --border: #26344f;
+        --shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+        --focus-ring: 0 0 0 3px rgba(45, 212, 191, 0.32);
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
         min-height: 100vh;
-        background: var(--bg);
+        background:
+          radial-gradient(circle at 15% 15%, rgba(45, 212, 191, 0.16), transparent 34%),
+          radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.14), transparent 36%),
+          linear-gradient(130deg, var(--bg-1), var(--bg-2));
         color: var(--text);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 24px;
       }
       main {
         width: 100%;
-        max-width: 600px;
-        animation: fadeUp 0.5s ease-out;
+        max-width: 720px;
+        animation: fadeUp 0.55s ease-out;
       }
       .card {
-        background: var(--panel);
+        position: relative;
+        background: linear-gradient(165deg, rgba(16, 25, 43, 0.9), rgba(10, 15, 29, 0.92));
         border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px;
+        border-radius: 20px;
+        padding: 34px;
         box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, rgba(45, 212, 191, 0.08), transparent 55%);
+        pointer-events: none;
       }
       .header-content {
-        margin-bottom: 24px;
-        text-align: center;
+        margin-bottom: 22px;
       }
       h1 {
-        margin: 0 0 8px;
-        font-size: 1.75rem;
+        margin: 0 0 6px;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
         font-weight: 700;
-        color: #1e293b;
+        color: #f8fbff;
       }
       .header-content p {
         margin: 0;
         color: var(--muted);
-        font-size: 0.95rem;
+        font-size: 0.98rem;
         line-height: 1.5;
       }
-      
+
+      .status-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(24, 35, 58, 0.66);
+        margin-bottom: 18px;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid #2f466e;
+        background: rgba(24, 35, 58, 0.8);
+        padding: 5px 11px;
+        font-size: 0.8rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #c6d5ef;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--warning);
+      }
+      .status-pill.connected .status-dot {
+        background: var(--primary);
+      }
+      .user-chip {
+        font-family: "IBM Plex Mono", Consolas, monospace;
+        font-size: 0.85rem;
+        color: #d3e4ff;
+      }
+
       .controls {
         display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 12px;
+        margin-bottom: 18px;
       }
       .controls-row {
         display: flex;
-        gap: 16px;
+        gap: 12px;
+        width: 100%;
       }
       .input-group {
         display: flex;
@@ -76,90 +133,115 @@
       }
       label {
         font-size: 0.875rem;
-        font-weight: 500;
-        color: #334155;
+        font-weight: 600;
+        color: #d2def3;
       }
       input, select {
         width: 100%;
         border: 1px solid var(--border);
-        border-radius: 8px;
+        border-radius: 10px;
         padding: 10px 12px;
         font-size: 1rem;
-        background: #fff;
+        background: var(--surface-soft);
         color: var(--text);
         transition: border-color 0.2s, box-shadow 0.2s;
+        font-family: "IBM Plex Mono", Consolas, monospace;
       }
       input:focus-visible, select:focus-visible {
         outline: none;
         border-color: var(--primary);
         box-shadow: var(--focus-ring);
       }
-      
-      .primary-btn {
-        width: 100%;
-        border: 0;
-        border-radius: 8px;
-        background: var(--primary);
-        color: #fff;
-        padding: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.2s, transform 0.1s;
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
       }
-      .primary-btn:hover {
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.96rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s, border-color 0.2s;
+        min-height: 42px;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn-primary {
+        background: linear-gradient(180deg, #2dd4bf, #14b8a6);
+        color: #fff;
+        flex: 1;
+      }
+      .btn-primary:hover {
         background: var(--primary-strong);
       }
-      .primary-btn:active {
-        transform: translateY(1px);
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid #37537f;
+        color: #c3d6f8;
+      }
+      .btn-secondary:hover {
+        border-color: #4c709d;
+      }
+      .btn-danger {
+        background: transparent;
+        border: 1px solid #7f3f59;
+        color: #f3c4d0;
+      }
+      .btn-danger:hover {
+        border-color: #ad4d6d;
       }
 
       #previewSection {
-        margin-top: 32px;
+        margin-top: 26px;
         border-top: 1px solid var(--border);
-        padding-top: 24px;
+        padding-top: 22px;
         display: none;
       }
       .preview-header {
-        font-size: 1.125rem;
+        font-size: 1.16rem;
         font-weight: 600;
         margin: 0 0 12px;
-        color: #1e293b;
+        color: #f1f6ff;
       }
-      
+
       .badge-single-frame {
-        background: #f1f5f9;
+        background: radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.14), transparent 50%), var(--surface-soft);
         border: 1px solid var(--border);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 24px;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-bottom: 24px;
+        margin-bottom: 16px;
       }
       .badge-single-frame img {
         max-width: 100%;
         height: auto;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-radius: 10px;
+        box-shadow: 0 6px 22px rgba(0,0,0,0.38);
       }
 
       .snippet-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 9px;
       }
       .snippet-header h3 {
-        font-size: 1.125rem;
+        font-size: 1rem;
         font-weight: 600;
         margin: 0;
-        color: #1e293b;
+        color: #e6efff;
       }
       .copy-btn {
-        background: #f1f5f9;
-        color: #475569;
-        border: 1px solid #cbd5e1;
+        background: transparent;
+        color: #d4e2fb;
+        border: 1px solid #37537f;
         padding: 6px 12px;
         font-size: 0.875rem;
         border-radius: 6px;
@@ -168,27 +250,45 @@
         transition: all 0.2s;
       }
       .copy-btn:hover {
-        background: #e2e8f0;
-        color: #0f172a;
+        border-color: #4c709d;
+        color: #ecf4ff;
       }
       .copy-btn.copied {
-        background: #ecfdf5;
-        color: #059669;
-        border-color: #6ee7b7;
+        background: rgba(45, 212, 191, 0.12);
+        color: #8bf3e6;
+        border-color: #2dd4bf;
       }
-      
+
       pre {
         margin: 0;
         white-space: pre-wrap;
         word-break: break-all;
-        background: #1e293b;
-        color: #f8fafc;
-        border-radius: 8px;
+        background: #0c1425;
+        color: #dff0ff;
+        border-radius: 10px;
+        border: 1px solid #22314f;
         padding: 16px;
         font-size: 0.875rem;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-family: "IBM Plex Mono", Consolas, monospace;
         line-height: 1.5;
         transition: box-shadow 0.2s;
+      }
+
+      .hint {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .notice {
+        margin: 0 0 14px;
+        border: 1px solid #32506c;
+        background: rgba(56, 189, 248, 0.08);
+        color: #cde8ff;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        display: none;
       }
 
       @keyframes fadeUp {
@@ -200,7 +300,13 @@
         .controls-row {
           flex-direction: column;
         }
+        .actions {
+          flex-direction: column;
+        }
         .card { padding: 24px 20px; }
+        h1 {
+          font-size: 1.65rem;
+        }
       }
     </style>
   </head>
@@ -208,16 +314,21 @@
     <main>
       <div class="card">
         <div class="header-content">
-          <h1>GitHub Yearly Badge</h1>
-          <p>Generate a dynamic GitHub stats badge for your profile README.</p>
+          <h1>Build Your GitHub Yearly Badge</h1>
+          <p>Authenticate once with OAuth, then generate a clean README badge from your actual account data.</p>
+        </div>
+
+        <div id="notice" class="notice"></div>
+
+        <div class="status-bar">
+          <div id="statusPill" class="status-pill">
+            <span class="status-dot"></span>
+            <span id="statusText">Not connected</span>
+          </div>
+          <div id="userChip" class="user-chip">No account linked</div>
         </div>
 
         <div class="controls">
-          <div class="input-group">
-            <label for="username">GitHub Username</label>
-            <input id="username" placeholder="e.g. torvalds" autocomplete="off" />
-          </div>
-          
           <div class="controls-row">
             <div class="input-group">
               <label for="theme">Theme</label>
@@ -235,7 +346,12 @@
           </div>
         </div>
 
-        <button id="connect" class="primary-btn">Connect with GitHub</button>
+        <div class="actions">
+          <button id="connect" class="btn btn-primary">Connect with GitHub</button>
+          <button id="disconnect" class="btn btn-danger" style="display:none">Disconnect</button>
+          <button id="clearQuery" class="btn btn-secondary" style="display:none">Clear Callback Params</button>
+        </div>
+        <p class="hint">No username typing needed. OAuth decides the account and locks badge generation to that user.</p>
 
         <div id="previewSection">
           <h3 class="preview-header">Live Preview</h3>
@@ -253,14 +369,22 @@
     </main>
 
     <script>
-      const usernameInput = document.getElementById("username");
       const themeSelect = document.getElementById("theme");
       const yearSelect = document.getElementById("year");
       const connectBtn = document.getElementById("connect");
+      const disconnectBtn = document.getElementById("disconnect");
+      const clearQueryBtn = document.getElementById("clearQuery");
       const previewSection = document.getElementById("previewSection");
       const badgePreviewImg = document.getElementById("badgePreviewImg");
       const snippet = document.getElementById("snippet");
       const copyBtn = document.getElementById("copyBtn");
+      const statusPill = document.getElementById("statusPill");
+      const statusText = document.getElementById("statusText");
+      const userChip = document.getElementById("userChip");
+      const notice = document.getElementById("notice");
+
+      const STORED_USERNAME_KEY = "githubBadgeConnectedUser";
+      let activeUsername = "";
 
       // Populate years dynamically
       const currentYear = new Date().getUTCFullYear();
@@ -281,56 +405,80 @@
         return base + "/badge?" + params.join("&");
       }
 
+      function setNotice(message) {
+        if (!message) {
+          notice.style.display = "none";
+          notice.textContent = "";
+          return;
+        }
+        notice.textContent = message;
+        notice.style.display = "block";
+      }
+
+      function setConnectionState(username) {
+        activeUsername = (username || "").trim().toLowerCase();
+        const isConnected = Boolean(activeUsername);
+
+        statusPill.classList.toggle("connected", isConnected);
+        statusText.textContent = isConnected ? "Connected" : "Not connected";
+        userChip.textContent = isConnected ? "@" + activeUsername : "No account linked";
+        connectBtn.textContent = isConnected ? "Reconnect with GitHub" : "Connect with GitHub";
+        disconnectBtn.style.display = isConnected ? "inline-flex" : "none";
+      }
+
       function updateUI() {
-        const user = usernameInput.value.trim().toLowerCase();
         const theme = themeSelect.value;
         const lockYear = yearSelect.value;
+        const user = activeUsername;
 
         if (!user) {
           previewSection.style.display = "none";
+          snippet.textContent = "";
           return;
         }
 
         const url = buildUrls(user, theme, lockYear);
-        
+
         // Update Image
         badgePreviewImg.src = url;
-        
-        
-          
+
         snippet.textContent = "![" + user + " GitHub Stats](" + url + ")";
-        
+
         previewSection.style.display = "block";
       }
 
       function refreshFromQuery() {
         const q = new URLSearchParams(window.location.search);
+        const connected = q.get("connected") === "1";
         const user = (q.get("username") || "").trim().toLowerCase();
         const theme = (q.get("theme") || "").toLowerCase();
         const yr = q.get("year");
-        
+
         if (theme) themeSelect.value = theme;
         if (yr && Array.from(yearSelect.options).some(o => o.value === yr)) {
           yearSelect.value = yr;
         }
-        
-        if (user) {
-          usernameInput.value = user;
-          updateUI();
+
+        const stored = (localStorage.getItem(STORED_USERNAME_KEY) || "").trim().toLowerCase();
+        const resolvedUser = user || stored;
+
+        if (connected && user) {
+          setNotice("GitHub connected successfully.");
+          clearQueryBtn.style.display = "inline-flex";
+          localStorage.setItem(STORED_USERNAME_KEY, user);
+        } else if (q.has("connected") || q.has("username")) {
+          clearQueryBtn.style.display = "inline-flex";
         }
+
+        setConnectionState(resolvedUser);
+        updateUI();
       }
 
-      let timeout;
-      function debounceUpdate() {
-        clearTimeout(timeout);
-        timeout = setTimeout(updateUI, 300);
-      }
-
-      usernameInput.addEventListener("input", debounceUpdate);
       themeSelect.addEventListener("change", updateUI);
       yearSelect.addEventListener("change", updateUI);
 
       copyBtn.addEventListener("click", () => {
+        if (!snippet.textContent) return;
         navigator.clipboard.writeText(snippet.textContent).then(() => {
           copyBtn.textContent = "Copied!";
           copyBtn.classList.add("copied");
@@ -342,12 +490,36 @@
       });
 
       connectBtn.addEventListener("click", () => {
-        const username = usernameInput.value.trim().toLowerCase();
-        if (!username) {
-          alert("Please enter a GitHub username first.");
-          return;
+        window.location.href = "/auth/github";
+      });
+
+      disconnectBtn.addEventListener("click", async () => {
+        if (!activeUsername) return;
+        disconnectBtn.disabled = true;
+        disconnectBtn.textContent = "Disconnecting...";
+
+        try {
+          const response = await fetch("/disconnect?username=" + encodeURIComponent(activeUsername));
+          if (!response.ok) {
+            throw new Error("Unable to disconnect right now");
+          }
+          localStorage.removeItem(STORED_USERNAME_KEY);
+          setConnectionState("");
+          setNotice("Disconnected. You can connect another account anytime.");
+          updateUI();
+        } catch (error) {
+          setNotice(error.message || "Disconnect failed.");
+        } finally {
+          disconnectBtn.disabled = false;
+          disconnectBtn.textContent = "Disconnect";
         }
-        window.location.href = "/auth/github?username=" + encodeURIComponent(username);
+      });
+
+      clearQueryBtn.addEventListener("click", () => {
+        const next = window.location.pathname;
+        window.history.replaceState({}, "", next);
+        clearQueryBtn.style.display = "none";
+        setNotice("");
       });
 
       refreshFromQuery();
