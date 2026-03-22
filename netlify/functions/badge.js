@@ -27,6 +27,38 @@ const THEMES = {
         <circle cx="100" cy="250" r="120" fill="${c.text}" class="orb3" />
       </g>
     `
+  },
+  hacker: {
+    bg1: "#000000",
+    bg2: "#051105",
+    title: "#00ff00",
+    text: "#33ff33",
+    dot: "#00ff00",
+    bgStyle: `
+      @keyframes glitch {
+        0% { transform: translate(0) }
+        20% { transform: translate(-2px, 1px) }
+        40% { transform: translate(-1px, -1px) }
+        60% { transform: translate(2px, 1px) }
+        80% { transform: translate(1px, -1px) }
+        100% { transform: translate(0) }
+      }
+      .glitch { animation: glitch 2s infinite; }
+      .matrix { font-family: monospace; font-size: 14px; opacity: 0.2; fill: #00ff00; }
+    `,
+    bgMarkup: (c) => `
+      <g clip-path="url(#cardClip)">
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#003300" stroke-width="0.5"/>
+        </pattern>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        <text class="matrix" x="30" y="40">01010111</text>
+        <text class="matrix" x="500" y="200">10101000</text>
+        <text class="matrix" x="250" y="270">01101100</text>
+        <text class="matrix glitch" x="420" y="80">11001010</text>
+        <circle cx="0" cy="0" r="80" fill="${c.title}" opacity="0.1" class="glitch" />
+      </g>
+    `
   }
 };
 
