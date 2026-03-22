@@ -30,17 +30,37 @@ const THEMES = {
   }
 };
 
-function svgBadge({ username, year, stats, theme = "dark" }) {
+const FIELD_DEFS = {
+  commits: { label: "Total Commits:", key: "commits" },
+  prs: { label: "Total PRs:", key: "prs" },
+  issues: { label: "Total Issues:", key: "issues" },
+  reviews: { label: "Total Reviews:", key: "reviews" },
+  repos: { label: "Total Repos:", key: "repos" },
+  stars: { label: "Total Stars:", key: "stars" },
+};
+
+const DEFAULT_FIELDS = ["commits", "prs", "issues", "reviews", "repos", "stars"];
+
+function resolveFields(rawFields) {
+  const list = String(rawFields || "")
+    .split(",")
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+
+  const resolved = (list.length ? list : DEFAULT_FIELDS).filter((field) => FIELD_DEFS[field]);
+  return resolved.length ? resolved : DEFAULT_FIELDS;
+}
+
+function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIELDS }) {
   const themeData = THEMES[theme] || THEMES.dark;
 
-  const lines = [
-    { label: "Total Commits:", value: stats.commits },
-    { label: "Total PRs:", value: stats.prs },
-    { label: "Total Issues:", value: stats.issues },
-    { label: "Total Reviews:", value: stats.reviews },
-    { label: "Private Contributions:", value: stats.privateContributions },
-    { label: "Yearly Activity Total:", value: stats.total },
-  ];
+  const lines = fields.map((field) => {
+    const def = FIELD_DEFS[field];
+    return {
+      label: def.label,
+      value: stats[def.key] ?? "-",
+    };
+  });
 
   const rows = lines
     .map((line, index) => {
@@ -89,6 +109,7 @@ exports.handler = async (event) => {
     const username = (params.get("username") || "").trim().toLowerCase();
     const year = Number(params.get("year") || new Date().getUTCFullYear());
     const theme = (params.get("theme") || "dark").toLowerCase();
+    const fields = resolveFields(params.get("fields"));
 
     if (!username) {
       return {
@@ -105,13 +126,14 @@ exports.handler = async (event) => {
         username,
         year,
         theme,
+        fields,
         stats: {
           commits: "-",
           prs: "-",
           issues: "-",
           reviews: "-",
-          privateContributions: "-",
-          total: "Connect OAuth",
+          repos: "-",
+          stars: "Connect OAuth",
         },
       });
 
@@ -127,7 +149,7 @@ exports.handler = async (event) => {
 
     const token = decryptToken(encryptedToken);
     const stats = await fetchYearlyStats({ accessToken: token, username, year });
-    const svg = svgBadge({ username, year, stats, theme });
+    const svg = svgBadge({ username, year, stats, theme, fields });
 
     return {
       statusCode: 200,

@@ -55,7 +55,7 @@ async function fetchYearlyStats({ accessToken, username, year }) {
   const to = `${y}-12-31T23:59:59Z`;
 
   const query = `
-    query($username: String!, $from: DateTime!, $to: DateTime!) {
+    query($username: String!, $from: DateTime!, $to: DateTime!, $reposCursor: String) {
       user(login: $username) {
         contributionsCollection(from: $from, to: $to) {
           totalCommitContributions
@@ -64,54 +64,83 @@ async function fetchYearlyStats({ accessToken, username, year }) {
           totalPullRequestReviewContributions
           restrictedContributionsCount
         }
+        repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC, after: $reposCursor) {
+          totalCount
+          nodes {
+            stargazerCount
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
       }
     }
   `;
 
-  const res = await fetch(GITHUB_GRAPHQL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json",
-      "User-Agent": "github-yearly-badge-app",
-    },
-    body: JSON.stringify({
-      query,
-      variables: { username, from, to },
-    }),
-  });
+  let reposCursor = null;
+  let contributions = null;
+  let totalRepos = 0;
+  let totalStars = 0;
 
-  if (!res.ok) {
-    throw new Error(`GitHub GraphQL request failed: ${res.status}`);
-  }
+  while (true) {
+    const res = await fetch(GITHUB_GRAPHQL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "User-Agent": "github-yearly-badge-app",
+      },
+      body: JSON.stringify({
+        query,
+        variables: { username, from, to, reposCursor },
+      }),
+    });
 
-  const payload = await res.json();
-  if (payload.errors) {
-    throw new Error(`GitHub GraphQL errors: ${JSON.stringify(payload.errors)}`);
-  }
+    if (!res.ok) {
+      throw new Error(`GitHub GraphQL request failed: ${res.status}`);
+    }
 
-  const c = payload?.data?.user?.contributionsCollection;
-  if (!c) {
-    throw new Error("No contributionsCollection returned from GitHub");
+    const payload = await res.json();
+    if (payload.errors) {
+      throw new Error(`GitHub GraphQL errors: ${JSON.stringify(payload.errors)}`);
+    }
+
+    const user = payload?.data?.user;
+    const c = user?.contributionsCollection;
+    const repositories = user?.repositories;
+    if (!c || !repositories) {
+      throw new Error("GitHub GraphQL response missing stats data");
+    }
+
+    if (!contributions) {
+      contributions = c;
+      totalRepos = repositories.totalCount || 0;
+    }
+
+    const starsInPage = (repositories.nodes || []).reduce(
+      (sum, repo) => sum + (repo?.stargazerCount || 0),
+      0
+    );
+    totalStars += starsInPage;
+
+    if (!repositories.pageInfo?.hasNextPage) {
+      break;
+    }
+    reposCursor = repositories.pageInfo.endCursor;
   }
 
   const stats = {
     username,
     year: y,
-    commits: c.totalCommitContributions,
-    prs: c.totalPullRequestContributions,
-    issues: c.totalIssueContributions,
-    reviews: c.totalPullRequestReviewContributions,
-    privateContributions: c.restrictedContributionsCount,
+    commits: contributions.totalCommitContributions,
+    prs: contributions.totalPullRequestContributions,
+    issues: contributions.totalIssueContributions,
+    reviews: contributions.totalPullRequestReviewContributions,
+    repos: totalRepos,
+    stars: totalStars,
   };
-
-  stats.total =
-    stats.commits +
-    stats.prs +
-    stats.issues +
-    stats.reviews +
-    stats.privateContributions;
 
   return stats;
 }

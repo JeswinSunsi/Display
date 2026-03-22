@@ -120,6 +120,37 @@
         gap: 12px;
         margin-bottom: 18px;
       }
+      .stat-picker {
+        margin-bottom: 18px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(24, 35, 58, 0.5);
+      }
+      .stat-picker legend {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #d2def3;
+        padding: 0 6px;
+      }
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 14px;
+      }
+      .stat-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #d7e5fd;
+        font-size: 0.92rem;
+        user-select: none;
+      }
+      .stat-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
       .controls-row {
         display: flex;
         gap: 12px;
@@ -300,6 +331,9 @@
         .controls-row {
           flex-direction: column;
         }
+        .stat-grid {
+          grid-template-columns: 1fr;
+        }
         .actions {
           flex-direction: column;
         }
@@ -315,7 +349,7 @@
       <div class="card">
         <div class="header-content">
           <h1>Build Your GitHub Yearly Badge</h1>
-          <p>Authenticate once with OAuth, then generate a clean README badge from your actual account data.</p>
+          <p>Authenticate once with OAuth, then generate a clean README badge.</p>
         </div>
 
         <div id="notice" class="notice"></div>
@@ -346,12 +380,21 @@
           </div>
         </div>
 
+        <fieldset class="stat-picker">
+          <legend>Stats to display</legend>
+          <div class="stat-grid">
+            <label class="stat-item"><input type="checkbox" value="commits" checked />Commits</label>
+            <label class="stat-item"><input type="checkbox" value="prs" checked />Pull Requests</label>
+            <label class="stat-item"><input type="checkbox" value="issues" checked />Issues</label>
+            <label class="stat-item"><input type="checkbox" value="reviews" checked />Reviews</label>
+            <label class="stat-item"><input type="checkbox" value="repos" checked />Total Repos</label>
+            <label class="stat-item"><input type="checkbox" value="stars" checked />Total Stars</label>
+          </div>
+        </fieldset>
+
         <div class="actions">
           <button id="connect" class="btn btn-primary">Connect with GitHub</button>
-          <button id="disconnect" class="btn btn-danger" style="display:none">Disconnect</button>
-          <button id="clearQuery" class="btn btn-secondary" style="display:none">Clear Callback Params</button>
         </div>
-        <p class="hint">No username typing needed. OAuth decides the account and locks badge generation to that user.</p>
 
         <div id="previewSection">
           <h3 class="preview-header">Live Preview</h3>
@@ -372,8 +415,7 @@
       const themeSelect = document.getElementById("theme");
       const yearSelect = document.getElementById("year");
       const connectBtn = document.getElementById("connect");
-      const disconnectBtn = document.getElementById("disconnect");
-      const clearQueryBtn = document.getElementById("clearQuery");
+      const statCheckboxes = Array.from(document.querySelectorAll('.stat-picker input[type="checkbox"]'));
       const previewSection = document.getElementById("previewSection");
       const badgePreviewImg = document.getElementById("badgePreviewImg");
       const snippet = document.getElementById("snippet");
@@ -395,12 +437,19 @@
         yearSelect.appendChild(opt);
       }
 
-      function buildUrls(username, theme, lockYear) {
+      function getSelectedStats() {
+        return statCheckboxes.filter((box) => box.checked).map((box) => box.value);
+      }
+
+      function buildUrls(username, theme, lockYear, selectedStats) {
         const base = window.location.origin;
         let params = [];
         params.push("username=" + encodeURIComponent(username));
         if (theme && theme !== "dark") params.push("theme=" + encodeURIComponent(theme));
         if (lockYear && lockYear !== "live") params.push("year=" + encodeURIComponent(lockYear));
+        if (selectedStats && selectedStats.length) {
+          params.push("fields=" + encodeURIComponent(selectedStats.join(",")));
+        }
         
         return base + "/badge?" + params.join("&");
       }
@@ -422,14 +471,14 @@
         statusPill.classList.toggle("connected", isConnected);
         statusText.textContent = isConnected ? "Connected" : "Not connected";
         userChip.textContent = isConnected ? "@" + activeUsername : "No account linked";
-        connectBtn.textContent = isConnected ? "Reconnect with GitHub" : "Connect with GitHub";
-        disconnectBtn.style.display = isConnected ? "inline-flex" : "none";
+        connectBtn.textContent = "Connect with GitHub";
       }
 
       function updateUI() {
         const theme = themeSelect.value;
         const lockYear = yearSelect.value;
         const user = activeUsername;
+        const selectedStats = getSelectedStats();
 
         if (!user) {
           previewSection.style.display = "none";
@@ -437,7 +486,7 @@
           return;
         }
 
-        const url = buildUrls(user, theme, lockYear);
+        const url = buildUrls(user, theme, lockYear, selectedStats);
 
         // Update Image
         badgePreviewImg.src = url;
@@ -464,10 +513,12 @@
 
         if (connected && user) {
           setNotice("GitHub connected successfully.");
-          clearQueryBtn.style.display = "inline-flex";
           localStorage.setItem(STORED_USERNAME_KEY, user);
-        } else if (q.has("connected") || q.has("username")) {
-          clearQueryBtn.style.display = "inline-flex";
+        }
+
+        if (q.has("connected") || q.has("username")) {
+          const next = window.location.pathname;
+          window.history.replaceState({}, "", next);
         }
 
         setConnectionState(resolvedUser);
@@ -476,6 +527,17 @@
 
       themeSelect.addEventListener("change", updateUI);
       yearSelect.addEventListener("change", updateUI);
+      statCheckboxes.forEach((checkbox) =>
+        checkbox.addEventListener("change", () => {
+          const selectedCount = getSelectedStats().length;
+          if (selectedCount === 0) {
+            checkbox.checked = true;
+            setNotice("Select at least one stat to build the card.");
+            return;
+          }
+          updateUI();
+        })
+      );
 
       copyBtn.addEventListener("click", () => {
         if (!snippet.textContent) return;
@@ -491,35 +553,6 @@
 
       connectBtn.addEventListener("click", () => {
         window.location.href = "/auth/github";
-      });
-
-      disconnectBtn.addEventListener("click", async () => {
-        if (!activeUsername) return;
-        disconnectBtn.disabled = true;
-        disconnectBtn.textContent = "Disconnecting...";
-
-        try {
-          const response = await fetch("/disconnect?username=" + encodeURIComponent(activeUsername));
-          if (!response.ok) {
-            throw new Error("Unable to disconnect right now");
-          }
-          localStorage.removeItem(STORED_USERNAME_KEY);
-          setConnectionState("");
-          setNotice("Disconnected. You can connect another account anytime.");
-          updateUI();
-        } catch (error) {
-          setNotice(error.message || "Disconnect failed.");
-        } finally {
-          disconnectBtn.disabled = false;
-          disconnectBtn.textContent = "Disconnect";
-        }
-      });
-
-      clearQueryBtn.addEventListener("click", () => {
-        const next = window.location.pathname;
-        window.history.replaceState({}, "", next);
-        clearQueryBtn.style.display = "none";
-        setNotice("");
       });
 
       refreshFromQuery();
