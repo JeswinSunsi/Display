@@ -53,6 +53,11 @@ function resolveFields(rawFields) {
 
 function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIELDS }) {
   const themeData = THEMES[theme] || THEMES.dark;
+  const width = 580;
+  const titleY = 45;
+  const dividerY = 58;
+  const firstRowY = 84;
+  const rowGap = 32;
 
   const lines = fields.map((field) => {
     const def = FIELD_DEFS[field];
@@ -62,9 +67,13 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
     };
   });
 
+  const rowCount = Math.max(lines.length, 1);
+  const lastRowY = firstRowY + (rowCount - 1) * rowGap;
+  const height = Math.max(130, lastRowY + 28);
+
   const rows = lines
     .map((line, index) => {
-      const y = 84 + index * 32;
+      const y = firstRowY + index * rowGap;
       return `
     <g>
       <circle cx="30" cy="${y - 6}" r="6" fill="${themeData.dot}" />
@@ -75,10 +84,10 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
     .join("");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="580" height="290" role="img" aria-label="${escapeXml(username)} GitHub stats ${escapeXml(year)}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="${escapeXml(username)} GitHub stats ${escapeXml(year)}">
   <defs>
     <clipPath id="cardClip">
-      <rect width="580" height="290" rx="14"/>
+      <rect width="${width}" height="${height}" rx="14"/>
     </clipPath>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="${themeData.bg1}" />
@@ -91,12 +100,12 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
       ${themeData.bgStyle}
     </style>
   </defs>
-  <rect width="580" height="290" rx="14" fill="url(#bg)" stroke="${themeData.bg2}" stroke-width="2"/>
+  <rect width="${width}" height="${height}" rx="14" fill="url(#bg)" stroke="${themeData.bg2}" stroke-width="2"/>
   
   ${themeData.bgMarkup(themeData)}
 
-  <text x="30" y="45" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
-  <line x1="30" y1="58" x2="550" y2="58" stroke="${themeData.text}" stroke-opacity="0.2" stroke-width="1" class="divider" />
+  <text x="30" y="${titleY}" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
+  <line x1="30" y1="${dividerY}" x2="550" y2="${dividerY}" stroke="${themeData.text}" stroke-opacity="0.2" stroke-width="1" class="divider" />
   ${rows}
 </svg>`;
 }
