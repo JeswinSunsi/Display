@@ -223,16 +223,6 @@
               <label for="theme">Theme</label>
               <select id="theme">
                 <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="dracula">Dracula</option>
-                <option value="synthwave">Synthwave</option>
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="hacker">Hacker</option>
-                <option value="ocean">Ocean</option>
-                <option value="sunset">Sunset</option>
-                <option value="minimalist">Minimalist</option>
-                <option value="retro">Retro</option>
-                <option value="space">Space</option>
               </select>
             </div>
             
@@ -306,12 +296,9 @@
         // Update Image
         badgePreviewImg.src = url;
         
-        // Update Snippet
-        let comment = lockYear === "live" 
-          ? "<!-- Live updating GitHub stats for " + user + " -->" 
-          : "<!-- Locked GitHub stats for " + user + " in " + lockYear + " -->";
+        
           
-        snippet.textContent = comment + "\n![" + user + " GitHub Stats](" + url + ")";
+        snippet.textContent = "![" + user + " GitHub Stats](" + url + ")";
         
         previewSection.style.display = "block";
       }
