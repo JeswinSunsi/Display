@@ -51,12 +51,45 @@ function resolveFields(rawFields) {
   return resolved.length ? resolved : DEFAULT_FIELDS;
 }
 
+function easeOutQuad(t) {
+  return t * (2 - t);
+}
+
+function buildCountFrames(value, steps = 12) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return [String(value ?? "-")];
+  }
+
+  const isInteger = Number.isInteger(numericValue);
+  const frames = [];
+
+  for (let i = 1; i <= steps; i++) {
+    const progress = i / steps;
+    const eased = easeOutQuad(progress);
+    const current = numericValue * eased;
+    const nextValue = isInteger ? Math.round(current) : Number(current.toFixed(1));
+    const nextText = String(nextValue);
+    if (frames[frames.length - 1] !== nextText) {
+      frames.push(nextText);
+    }
+  }
+
+  const finalText = String(isInteger ? Math.round(numericValue) : Number(numericValue.toFixed(1)));
+  if (!frames.length || frames[frames.length - 1] !== finalText) {
+    frames.push(finalText);
+  }
+
+  return frames;
+}
+
 function buildRollingValueMarkup({ value, x, y, color, delay }) {
-  const frames = ["1", "2", "3", "4", String(value ?? "-")];
+  const frames = buildCountFrames(value);
+  const frameStep = 0.09;
 
   return frames
     .map((frame, index) => {
-      const frameDelay = delay + index * 0.14;
+      const frameDelay = delay + index * frameStep;
       const frameClass = index === frames.length - 1 ? "roll-frame final" : "roll-frame";
       return `<text x="${x}" y="${y}" fill="${color}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end" class="${frameClass}" style="animation-delay:${frameDelay.toFixed(2)}s">${escapeXml(frame)}</text>`;
     })
