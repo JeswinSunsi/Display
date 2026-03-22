@@ -51,6 +51,18 @@ function resolveFields(rawFields) {
   return resolved.length ? resolved : DEFAULT_FIELDS;
 }
 
+function buildRollingValueMarkup({ value, x, y, color, delay }) {
+  const frames = ["1", "2", "3", "4", String(value ?? "-")];
+
+  return frames
+    .map((frame, index) => {
+      const frameDelay = delay + index * 0.14;
+      const frameClass = index === frames.length - 1 ? "roll-frame final" : "roll-frame";
+      return `<text x="${x}" y="${y}" fill="${color}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end" class="${frameClass}" style="animation-delay:${frameDelay.toFixed(2)}s">${escapeXml(frame)}</text>`;
+    })
+    .join("");
+}
+
 function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIELDS }) {
   const themeData = THEMES[theme] || THEMES.dark;
   const width = 580;
@@ -74,11 +86,20 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
   const rows = lines
     .map((line, index) => {
       const y = firstRowY + index * rowGap;
+      const rowDelay = 0.28 + index * 0.16;
       return `
-    <g>
+    <g class="reveal" style="animation-delay:${rowDelay.toFixed(2)}s">
       <circle cx="30" cy="${y - 6}" r="6" fill="${themeData.dot}" />
       <text x="48" y="${y}" fill="${themeData.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="600">${escapeXml(line.label)}</text>
-      <text x="550" y="${y}" fill="${themeData.text}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end">${escapeXml(line.value)}</text>
+      <g class="roll-value">
+        ${buildRollingValueMarkup({
+          value: line.value,
+          x: 550,
+          y,
+          color: themeData.text,
+          delay: rowDelay + 0.05,
+        })}
+      </g>
     </g>`;
     })
     .join("");
@@ -96,6 +117,30 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
     <style>
       .title { font: 800 24px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif; fill: ${themeData.title}; }
       .divider { stroke-dasharray: 520; stroke-dashoffset: 0; }
+      .reveal { opacity: 0; transform: translateY(6px); animation: revealText 0.35s ease-out forwards; }
+      .roll-frame { opacity: 0; transform: translateY(6px); animation: rollFrame 0.5s ease-out forwards; }
+      .roll-frame.final { animation-duration: 0.32s; }
+
+      @keyframes revealText {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes rollFrame {
+        0% { opacity: 0; transform: translateY(8px); }
+        20% { opacity: 1; transform: translateY(0); }
+        75% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-8px); }
+      }
+
+      .roll-frame.final {
+        animation-name: rollFinal;
+      }
+
+      @keyframes rollFinal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
       
       ${themeData.bgStyle}
     </style>
@@ -104,8 +149,8 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
   
   ${themeData.bgMarkup(themeData)}
 
-  <text x="30" y="${titleY}" class="title">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
-  <line x1="30" y1="${dividerY}" x2="550" y2="${dividerY}" stroke="${themeData.text}" stroke-opacity="0.2" stroke-width="1" class="divider" />
+  <text x="30" y="${titleY}" class="title reveal" style="animation-delay:0.06s">${escapeXml(username)} GitHub Stats (${escapeXml(year)})</text>
+  <line x1="30" y1="${dividerY}" x2="550" y2="${dividerY}" stroke="${themeData.text}" stroke-opacity="0.2" stroke-width="1" class="divider reveal" style="animation-delay:0.18s" />
   ${rows}
 </svg>`;
 }
