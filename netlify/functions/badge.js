@@ -85,13 +85,14 @@ function buildCountFrames(value, steps = 12) {
 
 function buildRollingValueMarkup({ value, x, y, color, delay }) {
   const frames = buildCountFrames(value);
-  const frameStep = 0.09;
+  const frameStep = 0.085;
 
   return frames
     .map((frame, index) => {
       const frameDelay = delay + index * frameStep;
       const frameClass = index === frames.length - 1 ? "roll-frame final" : "roll-frame";
-      return `<text x="${x}" y="${y}" fill="${color}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end" class="${frameClass}" style="animation-delay:${frameDelay.toFixed(2)}s">${escapeXml(frame)}</text>`;
+      const frameDuration = index === frames.length - 1 ? 0.22 : frameStep;
+      return `<text x="${x}" y="${y}" fill="${color}" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="end" class="${frameClass}" style="animation-delay:${frameDelay.toFixed(2)}s;animation-duration:${frameDuration.toFixed(3)}s">${escapeXml(frame)}</text>`;
     })
     .join("");
 }
@@ -156,8 +157,8 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
       .title { font: 800 24px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif; fill: ${themeData.title}; }
       .divider { stroke-dasharray: 520; stroke-dashoffset: 0; }
       .reveal { opacity: 0; transform: translateY(6px); animation: revealText 0.35s ease-out forwards; }
-      .roll-frame { opacity: 0; transform: translateY(6px); animation: rollFrame 0.5s ease-out forwards; }
-      .roll-frame.final { animation-duration: 0.32s; }
+      .roll-frame { opacity: 0; transform: translateY(6px); animation: rollFrame 0.085s linear forwards; }
+      .roll-frame.final { animation-duration: 0.22s; }
 
       @keyframes revealText {
         from { opacity: 0; transform: translateY(6px); }
@@ -165,10 +166,10 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
       }
 
       @keyframes rollFrame {
-        0% { opacity: 0; transform: translateY(8px); }
-        20% { opacity: 1; transform: translateY(0); }
-        75% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-8px); }
+        0% { opacity: 0; transform: translateY(6px); }
+        12% { opacity: 1; transform: translateY(0); }
+        88% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-6px); }
       }
 
       .roll-frame.final {
