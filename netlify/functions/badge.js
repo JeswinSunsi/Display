@@ -82,11 +82,16 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
   const rowCount = Math.max(lines.length, 1);
   const lastRowY = firstRowY + (rowCount - 1) * rowGap;
   const height = Math.max(130, lastRowY + 28);
+  const revealDuration = 0.35;
+  const firstRowRevealDelay = 0.28;
+  const rowRevealStep = 0.16;
+  const finalRevealEnd = firstRowRevealDelay + (rowCount - 1) * rowRevealStep + revealDuration;
+  const rollingBaseDelay = finalRevealEnd + 0.08;
 
   const rows = lines
     .map((line, index) => {
       const y = firstRowY + index * rowGap;
-      const rowDelay = 0.28 + index * 0.16;
+      const rowDelay = firstRowRevealDelay + index * rowRevealStep;
       return `
     <g class="reveal" style="animation-delay:${rowDelay.toFixed(2)}s">
       <circle cx="30" cy="${y - 6}" r="6" fill="${themeData.dot}" />
@@ -97,7 +102,7 @@ function svgBadge({ username, year, stats, theme = "dark", fields = DEFAULT_FIEL
           x: 550,
           y,
           color: themeData.text,
-          delay: rowDelay + 0.05,
+          delay: rollingBaseDelay + index * 0.14,
         })}
       </g>
     </g>`;
